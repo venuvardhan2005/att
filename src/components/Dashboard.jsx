@@ -13,7 +13,7 @@ import {
   BarChart3
 } from 'lucide-react';
 
-const Dashboard = ({ onMethodSelect }) => {
+const Dashboard = ({ onMethodSelect, userRole = 'teacher' }) => {
   const [selectedClass, setSelectedClass] = useState('Computer Science A');
 
   const attendanceStats = {
@@ -65,8 +65,8 @@ const Dashboard = ({ onMethodSelect }) => {
         animate={{ y: 0, opacity: 1 }}
         className="mb-8"
       >
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">Smart Attendance System</h1>
-        <p className="text-gray-600">Automated attendance tracking with QR codes, face recognition, and Bluetooth</p>
+        <h1 className="text-4xl font-bold text-gray-900 mb-2">Teacher Dashboard</h1>
+        <p className="text-gray-600">Manage attendance with smart tracking methods</p>
       </motion.div>
 
       {/* Stats Cards */}
@@ -97,11 +97,13 @@ const Dashboard = ({ onMethodSelect }) => {
         </div>
 
         <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
-          <div>
-            <p className="text-sm font-medium text-gray-600">Absent Today</p>
-            <p className="text-3xl font-bold text-red-600">{attendanceStats.absentToday}</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Absent Today</p>
+              <p className="text-3xl font-bold text-red-600">{attendanceStats.absentToday}</p>
+            </div>
+            <XCircle className="h-12 w-12 text-red-500" />
           </div>
-          <XCircle className="h-12 w-12 text-red-500" />
         </div>
 
         <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">

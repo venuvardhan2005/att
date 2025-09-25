@@ -1,40 +1,76 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import Dashboard from './components/Dashboard';
-import AttendanceMethod from './components/AttendanceMethod';
-import QRCodeScanner from './components/QRCodeScanner';
-import FaceRecognition from './components/FaceRecognition';
-import BluetoothDetection from './components/BluetoothDetection';
+import AuthLayout from './components/auth/AuthLayout';
+import TeacherDashboard from './components/teacher/TeacherDashboard';
+import StudentDashboard from './components/student/StudentDashboard';
+import AdminDashboard from './components/admin/AdminDashboard';
+import ParentDashboard from './components/parent/ParentDashboard';
+import Notification from './components/shared/Notification';
 
 function App() {
+  const [user, setUser] = useState(null);
   const [currentView, setCurrentView] = useState('dashboard');
+  const [notification, setNotification] = useState(null);
 
-  const renderView = () => {
-    switch (currentView) {
-      case 'dashboard':
-        return <Dashboard onMethodSelect={setCurrentView} />;
-      case 'qr':
-        return <QRCodeScanner onBack={() => setCurrentView('dashboard')} />;
-      case 'face':
-        return <FaceRecognition onBack={() => setCurrentView('dashboard')} />;
-      case 'bluetooth':
-        return <BluetoothDetection onBack={() => setCurrentView('dashboard')} />;
-      case 'methods':
-        return <AttendanceMethod onBack={() => setCurrentView('dashboard')} onMethodSelect={setCurrentView} />;
+  const handleLogin = (userData) => {
+    setUser(userData);
+    setCurrentView('dashboard');
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setCurrentView('dashboard');
+    setNotification(null);
+  };
+  
+  // Simulate a class start notification
+  useEffect(() => {
+    if (user && (user.role === 'student' || user.role === 'teacher')) {
+      const timer = setTimeout(() => {
+        setNotification({
+          title: 'Class Starting Soon!',
+          message: 'Your next class, "Physics", is starting in 5 minutes in Room 301.',
+        });
+      }, 5000); // Show notification 5 seconds after login
+
+      return () => clearTimeout(timer);
+    }
+  }, [user]);
+
+
+  const renderDashboard = () => {
+    if (!user) {
+      return <AuthLayout onLogin={handleLogin} />;
+    }
+
+    switch (user.role) {
+      case 'teacher':
+        return <TeacherDashboard user={user} onLogout={handleLogout} currentView={currentView} setCurrentView={setCurrentView} />;
+      case 'student':
+        return <StudentDashboard user={user} onLogout={handleLogout} currentView={currentView} setCurrentView={setCurrentView} />;
+      case 'admin':
+        return <AdminDashboard user={user} onLogout={handleLogout} currentView={currentView} setCurrentView={setCurrentView} />;
+      case 'parent':
+        return <ParentDashboard user={user} onLogout={handleLogout} currentView={currentView} setCurrentView={setCurrentView} />;
       default:
-        return <Dashboard onMethodSelect={setCurrentView} />;
+        return <AuthLayout onLogin={handleLogin} />;
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+       {notification && (
+        <Notification
+          notification={notification}
+          onDismiss={() => setNotification(null)}
+        />
+      )}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="container mx-auto px-4 py-6"
       >
-        {renderView()}
+        {renderDashboard()}
       </motion.div>
     </div>
   );
